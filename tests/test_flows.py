@@ -62,8 +62,8 @@ async def test_start_main_menu_layout(app):
     assert sent, "бот должен ответить на /start"
     rows = buttons(sent[-1])
     assert rows[0] == ["О нас"]
-    assert rows[1] == ["Реклама"], "«Реклама» — вторым рядом"
-    assert ["Поддержка"] in rows and ["Наше портфолио"] in rows
+    assert rows[1] == ["Реклама", "Наше портфолио"], "второй ряд — «Реклама» и «Наше портфолио» вместе"
+    assert rows[2] == ["Поддержка"]
     assert not any("Админ" in b for row in rows for b in row), "обычный пользователь не видит админку"
     # Стили и premium-иконки на кнопках
     first = sent[-1].reply_markup.inline_keyboard[0][0]

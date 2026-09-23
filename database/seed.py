@@ -181,18 +181,20 @@ async def seed_defaults(repo: Repo, settings: Settings) -> bool:
         await repo.menu.create(
             key="about", text="О нас", style="primary", icon_emoji_id=E.ABOUT_EMOJI.custom_id
         )
-        # «Реклама» — вторым рядом, как просили.
+        # Второй ряд — «Реклама» и «Наше портфолио» рядом (по половине ряда).
         await repo.menu.create(
-            key="ads", text="Реклама", style="success", icon_emoji_id=E.ADS_EMOJI.custom_id
-        )
-        await repo.menu.create(
-            key="support", text="Поддержка", style=None, icon_emoji_id=E.SUPPORT_EMOJI.custom_id
+            key="ads", text="Реклама", style="success", icon_emoji_id=E.ADS_EMOJI.custom_id,
+            row_width=2,
         )
         await repo.menu.create(
             key="portfolio",
             text="Наше портфолио",
             style="primary",
             icon_emoji_id=E.PORTFOLIO_EMOJI.custom_id,
+            row_width=2,
+        )
+        await repo.menu.create(
+            key="support", text="Поддержка", style=None, icon_emoji_id=E.SUPPORT_EMOJI.custom_id
         )
 
     if not await repo.links.all():
