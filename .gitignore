@@ -1,0 +1,27 @@
+# секреты
+.env
+*.env
+!.env.example
+
+# Telegram / Telethon сессии
+*.session
+*.session-journal
+sessions/
+
+# данные и логи
+data/
+logs/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/

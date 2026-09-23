@@ -1,0 +1,16 @@
+.env
+*.env
+!.env.example
+.venv
+venv
+.git
+.idea
+.vscode
+data
+logs
+tests
+.pytest_cache
+**/__pycache__
+*.session
+*.session-journal
+*.db
