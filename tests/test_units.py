@@ -91,3 +91,41 @@ def test_emoji_ids_are_from_pack():
     """Все premium-эмодзи интерфейса существуют в выгрузке набора проекта."""
     names = [v for k, v in vars(E).items() if k.endswith("_EMOJI")]
     assert names and all(e.custom_id and e.custom_id.isdigit() for e in names)
+
+
+def test_migration_0002_fixes_existing_menu(settings):
+    """База, созданная со старым меню, после миграции получает второй ряд «Реклама | Портфолио»."""
+    import asyncio
+
+    from alembic import command
+    from alembic.config import Config
+    from sqlalchemy import text
+
+    from config.settings import BASE_DIR
+    from database.database import Database
+
+    cfg = Config(str(BASE_DIR / "alembic.ini"))
+    cfg.set_main_option("script_location", str(BASE_DIR / "migrations"))
+    cfg.attributes["database_url"] = settings.database_url
+    command.upgrade(cfg, "0001")
+
+    old = [("about", "О нас"), ("portfolio", "Наше портфолио"), ("link", "Сайт"),
+           ("ads", "Реклама"), ("support", "Поддержка")]
+
+    async def fill_and_read(fill: bool):
+        db = Database(settings.database_url)
+        async with db.engine.begin() as conn:
+            if fill:
+                for pos, (key, title) in enumerate(old, start=1):
+                    await conn.execute(text(
+                        "INSERT INTO menu_buttons (key, text, position, is_enabled, row_width, created_at) "
+                        "VALUES (:k, :t, :p, true, 1, CURRENT_TIMESTAMP)"), {"k": key, "t": title, "p": pos})
+            rows = (await conn.execute(text("SELECT key, row_width FROM menu_buttons ORDER BY position"))).all()
+        await db.dispose()
+        return [tuple(r) for r in rows]
+
+    asyncio.run(fill_and_read(True))
+    command.upgrade(cfg, "head")
+    assert asyncio.run(fill_and_read(False)) == [
+        ("about", 1), ("ads", 2), ("portfolio", 2), ("support", 1), ("link", 1)
+    ]
